@@ -433,39 +433,6 @@ sealed trait FingerTree[+Element, Annotation] { self =>
 		measurer: Measurer[Element, Annotation]
 	): Option[FingerTree[Element, Annotation]] = popLeft.map { case (_, tail) => tail }
 
-	def toDigit(implicit measurer: Measurer[Element, Annotation]): Option[Digit[Element]] =
-		self match {
-			case FingerTreeSingle(value) => Some(Digit1(value))
-			case FingerTreeDeep(Digit1(value1), FingerTreeEmpty(), Digit2(value2, value3), _) =>
-				Some(Digit3(value1, value2, value3))
-
-			case FingerTreeDeep(
-				Digit1(value1),
-				FingerTreeEmpty(),
-				Digit3(value2, value3, value4),
-				_
-			) => Some(Digit4(value1, value2, value3, value4))
-
-			case FingerTreeDeep(
-				Digit1(value1),
-				FingerTreeSingle(Branch2(value2, value3, _)),
-				Digit1(value4),
-				_
-			) => Some(Digit4(value1, value2, value3, value4))
-
-			case FingerTreeDeep(Digit2(value1, value2), FingerTreeEmpty(), Digit1(value3), _) =>
-				Some(Digit3(value1, value2, value3))
-
-			case FingerTreeDeep(
-				Digit3(value1, value2, value3),
-				FingerTreeEmpty(),
-				Digit1(value4),
-				_
-			) => Some(Digit4(value1, value2, value3, value4))
-
-			case _ => None
-		}
-
 	/**
 	  * [[toBranchList]] compresses the [[FingerTree]], combining nodes into [[Branch]]s that the
 	  * resulting [[FingerTree]] will contain. For example, the following [[FingerTree]]s would be
@@ -506,6 +473,48 @@ sealed trait FingerTree[+Element, Annotation] { self =>
 				.getOrElse(throw new MatchError(s"Expected $self to have at least two elements."))
 	}
 
+	def toDigit(implicit measurer: Measurer[Element, Annotation]): Option[Digit[Element]] =
+		self match {
+			case FingerTreeSingle(value) => Some(Digit1(value))
+			case FingerTreeDeep(Digit1(value1), FingerTreeEmpty(), Digit1(value2), _) =>
+				Some(Digit2(value1, value2))
+
+			case FingerTreeDeep(Digit1(value1), FingerTreeEmpty(), Digit2(value2, value3), _) =>
+				Some(Digit3(value1, value2, value3))
+
+			case FingerTreeDeep(
+				Digit1(value1),
+				FingerTreeEmpty(),
+				Digit3(value2, value3, value4),
+				_
+			) => Some(Digit4(value1, value2, value3, value4))
+
+			case FingerTreeDeep(
+				Digit1(value1),
+				FingerTreeSingle(Branch2(value2, value3, _)),
+				Digit1(value4),
+				_
+			) => Some(Digit4(value1, value2, value3, value4))
+
+			case FingerTreeDeep(Digit2(value1, value2), FingerTreeEmpty(), Digit1(value3), _) =>
+				Some(Digit3(value1, value2, value3))
+
+			case FingerTreeDeep(
+				Digit2(value1, value2),
+				FingerTreeEmpty(),
+				Digit2(value3, value4),
+				_
+			) => Some(Digit4(value1, value2, value3, value4))
+
+			case FingerTreeDeep(
+				Digit3(value1, value2, value3),
+				FingerTreeEmpty(),
+				Digit1(value4),
+				_
+			) => Some(Digit4(value1, value2, value3, value4))
+
+			case _ => None
+		}
 }
 
 object FingerTree {
